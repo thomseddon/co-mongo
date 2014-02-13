@@ -1,6 +1,6 @@
 # co-mongo
 
-A mongodb wrapper that plays nicely with co.
+A mongodb wrapper that plays nicely with [co](https://github.com/visionmedia/co).
 
 This is project has two goals:
  * Maintain exact compatibility with the mongodb module, what ever mongo returns in it's callback is what gets returned when you yield
@@ -15,7 +15,7 @@ npm install co-mongo
 ## Example
 
 ```js
-var comongo = require('mongo');
+var comongo = require('co-mongo');
 var co = require('co');
 
 co(function *() {
@@ -45,7 +45,7 @@ It's not yet 100% API compatible, methods that are not implemented are marked as
 
 ## Extras
 
-Beyond the standard mongo methods, co-mongo also provides the following convenience methods, this is mainly inspired by @martinrue's [congo](https://github.com/martinrue/congo) module.
+Beyond the standard mongo methods, co-mongo also provides the following convenience methods, this is mainly inspired by [martinrue](https://twitter.com/martinrue)'s [congo](https://github.com/martinrue/congo) module.
 
  * `configure(options)`
      - Set the default connection options
