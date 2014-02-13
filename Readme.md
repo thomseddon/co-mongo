@@ -43,6 +43,46 @@ Because all methods have to be wrapped it does mean that when you do things wron
 
 It's not yet 100% API compatible, methods that are not implemented are marked as TODO in `lib/<class>.js`.
 
+## Extras
+
+Beyond the standard mongo methods, co-mongo also provides the following convenience methods, this is mainly inspired by @martinrue's [congo](https://github.com/martinrue/congo) module.
+
+ * `configure(options)`
+     - Set the default connection options
+     - Options:
+        - **host** `{string}` MongoDB host name (default: `127.0.0.1`)
+        - **port** `{int}` MongoDB port number (default: `27017`)
+        - **name** `{string}` MongoDB database name (default: `test`)
+        - **pool** `{int}` MongoDB poolSize (default: `5`)
+        - **collections** `{array[string]}` These collection will be attached, automatically, to the `db` object returned by `comongo.get()` (see example)
+
+ * `get()`
+     - Returns a db object (see example)
+
+### Example
+
+```js
+var comongo = require('co-mongo');
+
+comongo.configure({
+    host: '127.0.0.1',
+    port: 27017,
+    name: 'mydb',
+    pool: 10,
+    collections: ['users', 'products', 'orders']
+});
+
+co(function *() {
+    var db = yield comongo.get();
+
+    // Collections attached to db object
+    var users db.users.find().toArray();
+    console.log(users);
+
+    yield db.close();
+})();
+```
+
 ## License
 
 The MIT License (MIT)
