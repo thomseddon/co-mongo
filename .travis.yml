@@ -1,4 +1,9 @@
 language: node_js
 node_js:
-  - "0.11"
+  - 0.11
 services: mongodb
+before_script:
+  - cd ../
+  - npm install mongodb
+  - mv co-mongo node_modules
+  - cd node_modules/co-mongo
