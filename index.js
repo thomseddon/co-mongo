@@ -3,7 +3,7 @@
  * Module Dependencies
  */
 
-var mongo = require('mongodb');
+var mongo = require('../mongodb');
 var Db = require('./lib/db');
 
 /**

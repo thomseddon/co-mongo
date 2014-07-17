@@ -190,36 +190,6 @@ describe('db', function () {
     });
   });
 
-  describe('lastError', function () {
-    it('should return last error', function (done) {
-      co(function *() {
-
-        var errs = yield db.lastError();
-        errs[0].should.have.keys(['n', 'connectionId', 'err', 'ok']);
-      })(done);
-    });
-  });
-
-  describe('previousErrors', function () {
-    it('should return errors', function (done) {
-      co(function *() {
-
-        var errs = yield db.previousErrors();
-        errs[0].should.have.keys(['err', 'n', 'nPrev', 'ok']);
-      })(done);
-    });
-  });
-
-  describe('resetErrorHistory', function () {
-    it('should return errors', function (done) {
-      co(function *() {
-
-        var errs = yield db.resetErrorHistory();
-        errs[0].should.have.keys(['ok']);
-      })(done);
-    });
-  });
-
   describe('createIndex', function () {
     it('should create index', function (done) {
       co(function *() {
