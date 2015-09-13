@@ -295,19 +295,7 @@ describe('db', function () {
     it('should return stats', function (done) {
       co(function *() {
         var res = yield db.stats();
-        res.should.have.key('db');
-        res.should.have.key('collections'); 
-        res.should.have.key('objects');
-        res.should.have.key('avgObjSize');
-        res.should.have.key('dataSize');
-        res.should.have.key('storageSize'); 
-        res.should.have.key('numExtents'); 
-        res.should.have.key('indexes');
-        res.should.have.key('indexSize');
-        res.should.have.key('fileSize');
-        res.should.have.key('nsSizeMB');
-        res.should.have.key('dataFileVersion');
-        res.should.have.key('ok');
+        res.should.have.properties('db', 'collections', 'objects', 'avgObjSize', 'dataSize', 'storageSize', 'numExtents', 'indexes', 'indexSize', 'fileSize', 'nsSizeMB', 'dataFileVersion', 'ok');
       })(done);
     });
   });
