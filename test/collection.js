@@ -55,7 +55,7 @@ describe('collection', function () {
       co(function *() {
         var res = yield test.update({ hello: 'world' }, { hello: 'thom' });
         res.result.ok.should.equal(1);
-        res.result.should.have.keys(['nModified', 'n', 'ok']);
+        res.result.should.have.keys(['n', 'ok']);
       })(done);
     });
   });
