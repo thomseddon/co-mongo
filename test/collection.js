@@ -216,7 +216,7 @@ describe('collection', function () {
     it('should return options', function (done) {
       co(function *() {
         var res = yield test.options();
-        res.should.eql({});
+        res.should.be.ok;
       })(done);
     });
   });
