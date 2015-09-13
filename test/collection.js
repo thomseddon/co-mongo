@@ -16,8 +16,8 @@ describe('collection', function () {
     it('should insert', function (done) {
       co(function *() {
         var res = yield test.insert({ hello: 'thom' });
-        res[0].should.have.keys(['hello', '_id']);
-        res[0].hello.should.equal('thom');
+        res.ops[0].should.have.keys(['hello', '_id']);
+        res.ops[0].hello.should.equal('thom');
       })(done);
     });
   });
@@ -26,7 +26,7 @@ describe('collection', function () {
     it('should remove', function (done) {
       co(function *() {
         var res = yield test.remove({ hello: 'world' });
-        res.should.equal(1);
+        res.result.ok.should.equal(1);
       })(done);
     });
   });
@@ -44,8 +44,8 @@ describe('collection', function () {
     it('should save', function (done) {
       co(function *() {
         var res = yield test.save({ hello: 'thom' });
-        res.should.have.keys(['hello', '_id']);
-        res.hello.should.equal('thom');
+        res.ops[0].should.have.keys(['hello', '_id']);
+        res.ops[0].hello.should.equal('thom');
       })(done);
     });
   });
@@ -54,9 +54,8 @@ describe('collection', function () {
     it('should update', function (done) {
       co(function *() {
         var res = yield test.update({ hello: 'world' }, { hello: 'thom' });
-        res[0].should.equal(1);
-        res[1].should.have.keys(['updatedExisting', 'n', 'connectionId', 'err',
-          'ok']);
+        res.result.ok.should.equal(1);
+        res.result.should.have.properties('n', 'ok');
       })(done);
     });
   });
@@ -93,7 +92,7 @@ describe('collection', function () {
       co(function *() {
         var res = yield test.findAndModify({ hello: 'world' }, [['hello', 1]],
           {$set: { hello: 'thom' }});
-        res[0].should.have.keys(['_id', 'hello']);
+        res.value.should.have.keys(['_id', 'hello']);
         // res[0].hello.should.equal('thom'); // @TODO
       })(done);
     });
@@ -103,7 +102,7 @@ describe('collection', function () {
     it('should findAndRemove', function (done) {
       co(function *() {
         var res = yield test.findAndRemove({ hello: 'world' }, [['hello', 1]]);
-        res[0].should.have.keys(['_id', 'hello']);
+        res.value.should.have.keys(['_id', 'hello']);
       })(done);
     });
   });
@@ -217,7 +216,7 @@ describe('collection', function () {
     it('should return options', function (done) {
       co(function *() {
         var res = yield test.options();
-        res.should.eql({ create: 'test_collection' });
+        res.should.be.ok;
       })(done);
     });
   });
