@@ -15,9 +15,9 @@ beforeEach(function (done) {
       db.createCollection('test_collection', function (err, test) {
         if (err) return done(err);
         exports.test = new comongo.Collection(test);
-        test.insert({ hello: 'world' }, function (err, doc) {
+        test.insert({ hello: 'world' }, function (err, r) {
           if (err) return done(err);
-          exports._id = doc[0]._id.toString();
+          exports._id = r.ops[0]._id.toString();
           db.createIndex('test_collection', { hello: 1 }, done);
         });
       });
