@@ -29,41 +29,42 @@ describe('db', function () {
       co(function *() {
         var server = new comongo.Server(setup.mongoHost.split(':')[0], 27017);
         var db = new comongo.Db(new mongo.Db(setup.mongoName, server, {w: 1}));
+        var openCalled = false;
 
-        db._db.openCalled.should.equal(false);
+        db._db
+          .on('open', function() {
+            openCalled = true;
+          })
+          .on('close', function() {
+            openCalled.should.equal(true);
+            done();
+          });
+
         db = yield db.open();
-        db._db.openCalled.should.equal(true);
         yield db.close();
-      })(done);
+      })();
     });
   });
 
   describe('close', function () {
     it('should close connection', function (done) {
       co(function *() {
-        db._db.openCalled.should.equal(true);
+
+        db._db
+          .on('close', function() {
+            done();
+          });
+
         yield db.close();
-        db._db.openCalled.should.equal(false);
-      })(done);
+      })();
     });
   });
 
-  describe('collectionsInfo', function () {
+  describe('listCollections', function () {
     it('should return cursor', function (done) {
       co(function *() {
-        var res = yield db.collectionsInfo();
+        var res = db.listCollections();
         res.should.be.instanceOf(comongo.Cursor);
-      })(done);
-    });
-  });
-
-  describe('collectionNames', function () {
-    it('should return collection names', function (done) {
-      co(function *() {
-        var collections = yield db.collectionNames();
-        var names = collections.map(function (name) { return name.name; });
-        names.should.containEql(setup.mongoName + '.test_collection');
-        names.should.match(new RegExp('^' + setup.mongoName + '.'));
       })(done);
     });
   });
@@ -102,7 +103,7 @@ describe('db', function () {
     // @TODO: Better test?
     it('should add user', function (done) {
       co(function *() {
-        var res = yield db.addUser('thom', 'pass123');
+        var res = yield db.addUser('thom', 'pass123', {roles: ['readWrite']});
         res[0].should.have.keys(['user', 'pwd']);
         res[0].user.should.equal('thom');
       })(done);
@@ -112,10 +113,9 @@ describe('db', function () {
   describe('authenticate', function () {
     it('should authenticate user', function (done) {
       co(function *() {
-        yield db.addUser('thom', 'pass123');
+        yield db.addUser('thom', 'pass123', {roles: ['readWrite']});
         var res = yield db.authenticate('thom', 'pass123');
         res.should.equal(true);
-        yield db.close();
       })(done);
     });
   });
@@ -123,7 +123,7 @@ describe('db', function () {
   describe('logout', function () {
     it('should logout user', function (done) {
       co(function *() {
-        yield db.addUser('thom', 'pass123');
+        yield db.addUser('thom', 'pass123', {roles: ['readWrite']});
         var res = yield db.authenticate('thom', 'pass123');
         res.should.equal(true);
         res = yield db.logout();
@@ -136,7 +136,7 @@ describe('db', function () {
     // @TODO: Better test?
     it('should remove user', function (done) {
       co(function *() {
-        yield db.addUser('thom', 'pass123');
+        yield db.addUser('thom', 'pass123', {roles: ['readWrite']});
         var res = yield db.removeUser('thom');
         res.should.equal(true);
       })(done);
@@ -149,9 +149,9 @@ describe('db', function () {
         var collection = yield db.createCollection('create_collection');
         collection.should.be.instanceOf(comongo.Collection);
 
-        var collections = yield db.collectionNames();
+        var collections = yield db.listCollections().toArray();
         var names = collections.map(function (name) { return name.name; });
-        names.should.containEql(setup.mongoName + '.create_collection');
+        names.should.containEql('create_collection');
       })(done);
     });
   });
@@ -170,9 +170,9 @@ describe('db', function () {
       co(function *() {
 
         yield db.dropCollection('test_collection');
-        var collections = yield db.collectionNames();
+        var collections = yield db.listCollections().toArray();
         var names = collections.map(function (name) { return name.name; });
-        names.should.not.containEql(setup.mongoName + '.test_collection');
+        names.should.not.containEql('test_collection');
       })(done);
     });
   });
@@ -182,40 +182,10 @@ describe('db', function () {
       co(function *() {
 
         yield db.renameCollection('test_collection', 'new_name');
-        var collections = yield db.collectionNames();
+        var collections = yield db.listCollections().toArray();
         var names = collections.map(function (name) { return name.name; });
-        names.should.containEql(setup.mongoName + '.new_name');
-        names.should.not.containEql(setup.mongoName + '.test_collection');
-      })(done);
-    });
-  });
-
-  describe('lastError', function () {
-    it('should return last error', function (done) {
-      co(function *() {
-
-        var errs = yield db.lastError();
-        errs[0].should.have.keys(['n', 'connectionId', 'err', 'ok']);
-      })(done);
-    });
-  });
-
-  describe('previousErrors', function () {
-    it('should return errors', function (done) {
-      co(function *() {
-
-        var errs = yield db.previousErrors();
-        errs[0].should.have.keys(['err', 'n', 'nPrev', 'ok']);
-      })(done);
-    });
-  });
-
-  describe('resetErrorHistory', function () {
-    it('should return errors', function (done) {
-      co(function *() {
-
-        var errs = yield db.resetErrorHistory();
-        errs[0].should.have.keys(['ok']);
+        names.should.containEql('new_name');
+        names.should.not.containEql('test_collection');
       })(done);
     });
   });
@@ -239,37 +209,6 @@ describe('db', function () {
     });
   });
 
-  describe('cursorInfo', function () {
-    it('should return cursor info', function (done) {
-      co(function *() {
-        var res = yield db.cursorInfo();
-        res.should.have.keys(['totalOpen', 'clientCursors_size','timedOut',
-          'ok']);
-      })(done);
-    });
-  });
-
-  describe('dropIndex', function () {
-    it('should drop index', function (done) {
-      co(function *() {
-        var res = yield db.dropIndex('test_collection', 'hello_1');
-        res.should.have.eql({
-          nIndexesWas: 2,
-          ok: 1
-        });
-      })(done);
-    });
-  });
-
-  describe('reIndex', function () {
-    it('should reindex', function (done) {
-      co(function *() {
-        var res = yield db.reIndex('test_collection');
-        res.should.equal(true);
-      })(done);
-    });
-  });
-
   describe('indexInformation', function () {
     it('should return indexInformation', function (done) {
       co(function *() {
@@ -286,17 +225,6 @@ describe('db', function () {
       co(function *() {
         var res = yield db.dropDatabase();
         res.should.equal(true);
-      })(done);
-    });
-  });
-
-  describe('stats', function () {
-    it('should return stats', function (done) {
-      co(function *() {
-        var res = yield db.stats();
-        res.should.have.keys(['db', 'collections', 'objects', 'avgObjSize',
-          'dataSize', 'storageSize', 'numExtents', 'indexes', 'indexSize',
-          'fileSize', 'nsSizeMB', 'dataFileVersion', 'ok']);
       })(done);
     });
   });

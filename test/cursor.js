@@ -1,7 +1,6 @@
 
 var stream = require('stream');
 var setup = require('./setup');
-var mongo = require('mongodb');
 var comongo = require('../');
 var co = require('co');
 
@@ -91,7 +90,7 @@ describe('cursor', function () {
 
   describe('skip', function () {
     it('should return cursor', function () {
-      var res = test.find().skip();
+      var res = test.find().skip(0);
       res.should.be.instanceOf(comongo.Cursor);
     });
   });
@@ -118,10 +117,7 @@ describe('cursor', function () {
     it('should return cursor', function (done) {
       co(function *() {
         var res = yield test.find().explain();
-        res.should.have.keys(['cursor', 'isMultiKey', 'n', 'nscannedObjects',
-          'nscanned', 'nscannedObjectsAllPlans', 'nscannedAllPlans',
-          'scanAndOrder', 'indexOnly', 'nYields', 'nChunkSkips', 'millis',
-          'indexBounds', 'allPlans', 'server']);
+        res.should.have.keys(['queryPlanner', 'executionStats', 'serverInfo']);
       })(done);
     });
   });
@@ -130,7 +126,6 @@ describe('cursor', function () {
     it('should return stream', function () {
       var res = test.find().stream();
       res.should.be.instanceOf(stream.Stream);
-      setup.db = false; // Flag db as closed
     });
   });
 
