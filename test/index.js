@@ -1,5 +1,4 @@
 
-var mongo = require('mongodb');
 var comongo = require('../');
 var co = require('co');
 
