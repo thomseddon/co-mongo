@@ -9,7 +9,7 @@
   "author": "Thom Seddon",
   "repository" : {
     "type" : "git",
-    "url" : "https://github.com/thomseddon/co-mongo"
+    "url" : "https://github.com/liushmh/co-mongo"
   },
   "license": "MIT",
   "dependencies": {
